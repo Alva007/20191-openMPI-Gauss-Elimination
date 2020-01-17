@@ -83,6 +83,10 @@ int main(int argc, char **argv) {
 		read_matrix_data(path2source, &matrix, &N);
 	} 
 
+	if (rank == 0) {
+		t_start = MPI_Wtime();
+	}
+
 	comm_s = MPI_Wtime();
 	MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	comm_total += MPI_Wtime() - comm_s;
@@ -90,10 +94,6 @@ int main(int argc, char **argv) {
 	// number of rows for each rank
 	int num_rows = (int) N / size;
 	double  *sub_matrix; 
-
-	if (rank == 0) {
-		t_start = MPI_Wtime();
-	}
 
 	if (N % size && rank == 0) {
 		sub_matrix = (double*) malloc((num_rows + N % size) * 2*N * sizeof(double));
@@ -371,11 +371,13 @@ int main(int argc, char **argv) {
 		if (_winner == -1) {
 			printf("\nNOT EXIST\n");
 		} else {
-			printf("\nDONE: \n");
 			// toString(matrix, N, 2*N);
 
+			/*
 			printf("Total time:  %f s\n", t_total);
 			printf("Communication time:  %f s\n", comm_total);
+			*/
+			printf("%d, %f, %f\n", size, t_total, comm_total);
 		}
 
 		free(matrix);

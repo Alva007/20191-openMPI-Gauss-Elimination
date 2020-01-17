@@ -17,7 +17,8 @@ int main(int argc, char **argv) {
 
 	srand(seed);
 
-	int N[] = {100, 500, 1000, 5000};
+	int bcd = 120;
+	int N[] = {bcd*6, bcd*10, bcd*40};
 	nTests = sizeof(N) / sizeof(int);
 	for (int i = 0; i < nTests; i++) {
 		makeTest(N[i], i);
@@ -27,7 +28,7 @@ int main(int argc, char **argv) {
 void makeTest(int n, int testID) {
 	FILE *fp;
 	char filename[256];
-	sprintf(filename, "./test_%d", testID);
+	sprintf(filename, "./data/test_%d", n);
 	fp = fopen(filename, "w");
 
 	fprintf(fp, "SHAPE = %d\n", n);
