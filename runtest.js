@@ -9,7 +9,7 @@ const P = [2]
 // const P = [0];
 N.map(n => {
 	let works = P.map(p => `mpirun --oversubscribe -np ${p} --hostfile mpi_hosts ./target/cycle-inverse --test ${n}`);
-	path = `${out}_${n}.csv`;
+	path = `./test/${out}_${n}.csv`;
 	fs.writeFileSync(path, `N: ${n}\np,total,comm\n`, {flag: 'as'});
 
 	works.map(work => {

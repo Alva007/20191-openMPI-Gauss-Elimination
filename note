@@ -1,3 +1,6 @@
 Cac tham so:
-N: 100, 500, 1000, 5000
-(N, p): p: 1, 2, 4, 8, 10
+    N: 100, 500, 1000, 5000
+    (N, p): p: 1, 2, 4, 8, 10
+
+#TODO:
+    + Ho tro so luong process bat ki voi dieu kien: N >> P (#NOTE: tiep tuc vong cho toi khi het phan du N % P)

@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 		else sscanf(argv[2], "%d", &test);
 
 		char path2source[256]; 
-		sprintf(path2source, "./data/test_%d", test);
+		sprintf(path2source, "./test/data/test_%d", test);
 		read_matrix_data(path2source, &matrix, &N);
 	} 
 
@@ -93,25 +93,22 @@ int main(int argc, char **argv) {
 
 	// number of rows for each rank
 	int num_rows = (int) N / size;
+    int remain_rows = N % size;
 	double  *sub_matrix; 
 
-	if (N % size && rank == 0) {
-		sub_matrix = (double*) malloc((num_rows + N % size) * 2*N * sizeof(double));
-		memcpy(sub_matrix, matrix, (N % size) * 2*N * sizeof(double));
-	} else {
+    if (remain_rows && rank < remain_rows) 
+		sub_matrix = (double*) malloc((num_rows + 1) * 2*N * sizeof(double));
+    else 
 		sub_matrix = (double*) malloc(num_rows * 2*N * sizeof(double));
-	}
 
 	if (size == 1) memcpy(sub_matrix, matrix, N * 2*N * sizeof(double));
 	else {
 		comm_s = MPI_Wtime();
 		for (int i = 0; i < num_rows; i++) {
-			if (rank == 0) 
-				MPI_Scatter(&matrix[(i + N % size) * 2*N * size], 2*N, MPI_DOUBLE, &sub_matrix[(i + N % size) * 2*N], 2*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-			else 
-				MPI_Scatter(&matrix[(i + N % size) * 2*N * size], 2*N, MPI_DOUBLE, &sub_matrix[i * 2*N], 2*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-			
+            MPI_Scatter(&matrix[i * 2*N * size], 2*N, MPI_DOUBLE, &sub_matrix[i * 2*N], 2*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 		}
+
+        // #TODO: start new loop scatter with remain_rows
 
 		comm_total += MPI_Wtime() - comm_s;
 	}
@@ -356,8 +353,11 @@ int main(int argc, char **argv) {
 
 			comm_s = MPI_Wtime();
 			for (int i = 0; i < num_rows; i++) {
-				MPI_Gather(&sub_matrix[i * 2*N], 2*N, MPI_DOUBLE, &matrix[(i + N % size) * 2*N * size], 2*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+				MPI_Gather(&sub_matrix[i * 2*N], 2*N, MPI_DOUBLE, &matrix[i * 2*N * size], 2*N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 			}
+
+            // #TODO: start gather loop with remain_rows
+
 			comm_total += MPI_Wtime() - comm_s;
 		}
 
@@ -372,11 +372,6 @@ int main(int argc, char **argv) {
 			printf("\nNOT EXIST\n");
 		} else {
 			// toString(matrix, N, 2*N);
-
-			/*
-			printf("Total time:  %f s\n", t_total);
-			printf("Communication time:  %f s\n", comm_total);
-			*/
 			printf("%d, %f, %f\n", size, t_total, comm_total);
 		}
 

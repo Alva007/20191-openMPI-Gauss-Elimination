@@ -11,7 +11,7 @@ run-inverse:
 	mpirun --oversubscribe -np 8 target/inverse --test 0
 
 create-test: maketest.c
-	./data/makeTest
+	./test/makeTest
 
-compile-test: maketest.c
-	gcc -o ./data/makeTest maketest.c
+compile-test: ./test/maketest.c
+	gcc -o ./test/makeTest ./test/maketest.c
